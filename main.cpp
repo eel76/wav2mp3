@@ -41,12 +41,13 @@ void process(std::vector<std::string> const& files)
   monitor<size_t> atomic_counter{ 0 };
 
   size_t const hardware_concurrency = thread::hardware_concurrency();
-  std::cout << "Hardware concurrency: " << hardware_concurrency << std::endl;
+  //std::cout << "Hardware concurrency: " << hardware_concurrency << std::endl;
 
   size_t const threadCount = std::min<size_t>(hardware_concurrency, files.size());
-  std::cout << "Thread count: " << threadCount << std::endl;
+  //std::cout << "Thread count: " << threadCount << std::endl;
 
   std::vector<thread> threads;
+  threads.reserve(threadCount);
 
   for (size_t t = 0; t < threadCount; ++t)
     threads.emplace_back(
@@ -54,19 +55,22 @@ void process(std::vector<std::string> const& files)
   {
     while (true)
     {
-      size_t const position = atomic_counter([](size_t& value)
+      size_t const position = atomic_counter([](size_t& counter)
       {
-        return value++;
+        return counter++;
       });
       if (position >= files.size())
         break;
 
-      convert(files[position]);
-
       synchronized_cout([&](std::ostream& str)
       {
-        str << "Thread " << t << " converted: " << files[position] << std::endl;
+        str << "Converting " << files[position];
+        //str << " in thread  " << t;
+        str << std::endl;
       });
+
+      convert(files[position]);
+
     }
   });
 }
