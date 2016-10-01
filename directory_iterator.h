@@ -3,15 +3,9 @@
 struct DIR;
 struct dirent;
 
-namespace wav2mp3
-{
+namespace wav2mp3 {
 class directory_iterator
 {
-  std::shared_ptr<DIR> directory_;
-  struct dirent* entry_;
-
-  void next();
-
 public:
   directory_iterator();
   explicit directory_iterator(char const* path);
@@ -23,6 +17,12 @@ public:
   char const* operator*() const;
 
   directory_iterator& operator++();
+
+private:
+  void next();
+
+  std::shared_ptr<DIR> directory_;
+  struct dirent* entry_;
 };
 
 directory_iterator begin(directory_iterator itr);

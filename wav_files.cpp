@@ -4,25 +4,26 @@
 #include <algorithm>
 #include <cctype>
 
-namespace wav2mp3
-{
-namespace
-{
-bool is_wav_file(std::string const& fileName)
+namespace wav2mp3 {
+namespace {
+bool
+is_wav_file(std::string const& filename)
 {
   // expected file name format: /.[.][wW][aA][vV]$/
-  size_t const length = fileName.length();
+  size_t const length = filename.length();
   if (length < 5)
     return false;
 
-  std::string fileExtension = fileName.substr(length - 4, length);
-  std::transform(fileExtension.begin(), fileExtension.end(), fileExtension.begin(), ::tolower);
+  std::string extension = filename.substr(length - 4, length);
+  std::transform(extension.begin(), extension.end(), extension.begin(),
+                 ::tolower);
 
-  return fileExtension == ".wav";
+  return extension == ".wav";
 }
 }
 
-std::vector<std::string> wav_files(char const* path)
+std::vector<std::string>
+wav_files(char const* path)
 {
   std::vector<std::string> files;
 

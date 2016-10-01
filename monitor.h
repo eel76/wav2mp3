@@ -1,14 +1,10 @@
 #include "lock_guard.h"
 #include "mutex.h"
 
-namespace wav2mp3
-{
+namespace wav2mp3 {
 template <class T>
 class monitor
 {
-  mutable T t_;
-  mutable mutex m_;
-
 public:
   explicit monitor(T t)
     : t_{ t }
@@ -21,5 +17,9 @@ public:
     lock_guard<mutex> hold{ m_ };
     return f(t_);
   }
+
+private:
+  mutable T t_;
+  mutable mutex m_;
 };
 }
