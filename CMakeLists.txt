@@ -4,6 +4,13 @@ include(ExternalProject)
 
 add_executable(${PROJECT_NAME} main.cpp directory_iterator.cpp directory_iterator.h lock_guard.h monitor.h mutex.cpp mutex.h thread.cpp thread.h wav_files.cpp wav_files.h)
 
+ExternalProject_Add(googletest
+  GIT_REPOSITORY https://github.com/google/googletest.git
+  PREFIX ${CMAKE_CURRENT_BINARY_DIR}/googletest
+  UPDATE_COMMAND ""
+  INSTALL_COMMAND ""
+)
+
 # add support for <lame.h>
 
 ExternalProject_Add(lame
