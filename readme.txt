@@ -25,3 +25,7 @@ Requirements:
 (9) the LAME encoder should be used with reasonable standard settings (e.g. quality based encoding with quality level "good")
 
 Implementation notes:
+
+(-) i didn't use <thread> due to (7)
+
+(-) wav files were taken from http://freewavesamples.com/
