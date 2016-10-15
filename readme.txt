@@ -27,5 +27,3 @@ Requirements:
 Implementation notes:
 
 (-) i didn't use <thread> due to (7)
-
-(-) wav files were taken from http://freewavesamples.com/

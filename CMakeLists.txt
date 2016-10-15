@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.0)
 project (wav2mp3)
 include(ExternalProject)
 
-add_executable(${PROJECT_NAME} main.cpp directory_iterator.cpp directory_iterator.h lock_guard.h monitor.h mutex.cpp mutex.h thread.cpp thread.h wav_files.cpp wav_files.h)
+add_executable(${PROJECT_NAME} readme.txt main.cpp directory_iterator.cpp directory_iterator.h lock_guard.h monitor.h mutex.cpp mutex.h thread.cpp thread.h wav_files.cpp wav_files.h)
 
 ExternalProject_Add(googletest
   GIT_REPOSITORY https://github.com/google/googletest.git
