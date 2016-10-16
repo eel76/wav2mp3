@@ -1,6 +1,6 @@
 #include <algorithm>
-#include <exception>
 #include <iostream>
+#include <system_error>
 #include <utility>
 
 #include <lame.h>
@@ -12,22 +12,8 @@
 using namespace wav2mp3;
 
 namespace wav2mp3 {
-std::string
-normalize_path(std::string path)
-{
-  if (path.empty())
-    return path;
-
-  std::replace(path.begin(), path.end(), '\\', '/');
-
-  if (path.back() == '/')
-    path.pop_back();
-
-  return path;
-}
-
 void
-convert(std::string const& filename)
+convert(path const& filename)
 {
   lame_global_flags* encoder = lame_init();
   lame_set_quality(encoder, 5);
@@ -36,17 +22,17 @@ convert(std::string const& filename)
 }
 
 void
-process(std::vector<std::string> const& files)
+process(std::vector<path> const& collection)
 {
-  monitor<std::reference_wrapper<std::ostream>> synchronized_cout{ std::cout };
-  monitor<size_t> atomic_counter{ 0 };
-
   size_t const hardware_concurrency = thread::hardware_concurrency();
   // std::cout << "Hardware concurrency: " << hardware_concurrency << std::endl;
 
   size_t const thread_count =
-    std::min<size_t>(hardware_concurrency, files.size());
+    std::min<size_t>(hardware_concurrency, collection.size());
   // std::cout << "Thread count: " << thread_count << std::endl;
+
+  monitor<std::reference_wrapper<std::ostream>> synchronized_out{ std::cout };
+  monitor<size_t> atomic{ 0 };
 
   std::vector<thread> threads;
   threads.reserve(thread_count);
@@ -54,18 +40,15 @@ process(std::vector<std::string> const& files)
   for (size_t t = 0; t < thread_count; ++t)
     threads.emplace_back([&, t]() {
       while (true) {
-        size_t const position =
-          atomic_counter([](size_t& counter) { return counter++; });
-        if (position >= files.size())
+        size_t const position = atomic([](size_t& counter) { return counter++; });
+        if (position >= collection.size())
           break;
 
-        synchronized_cout([&](std::ostream& str) {
-          str << "Converting " << files[position];
-          // str << " in thread  " << t;
-          str << std::endl;
+        synchronized_out([&](std::ostream& str) {
+          str << "Converting " << collection[position] << std::endl;
         });
 
-        convert(files[position]);
+        convert(collection[position]);
       }
     });
 }
@@ -75,15 +58,16 @@ int
 main(int argc, char* argv[])
 {
   if (argc != 2) {
-    std::cout << "Usage: <" << argv[0] << "> path_to_wav_collection"
+    std::cout << "Usage: <" << path{ argv[0] }.filename() << "> path_to_wav_collection"
               << std::endl;
     return 1;
   }
 
   try {
-    auto const path = normalize_path(argv[1]);
-    auto const files = wav_files(path.c_str());
-    process(files);
+    process(wav_files(path{ argv[1] }));
+  } catch (std::system_error& e) {
+    std::cout << "System error: " << e.what() << std::endl;
+    return e.code().value();
   } catch (std::exception& e) {
     std::cout << "Error: " << e.what() << std::endl;
     return 1;

@@ -27,3 +27,11 @@ Requirements:
 Implementation notes:
 
 (-) i didn't use <thread> due to (7)
+(-) lame selber gebaut, Makefiles korrupt
+
+Todos:
+
+googletest MT statt MD gebaut?!
+restrict to debug and release configuration?!
+unter windows und linux bauen
+konverter-jobs erzeugen (blockweise), die dann von den threads abgearbeitet werden!
