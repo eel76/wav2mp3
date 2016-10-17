@@ -18,14 +18,19 @@ public:
   converter()
     : encoder_(lame_init())
   {
-    lame_set_quality(encoder, 5);
-    lame_init_params(encoder);
+    lame_set_quality(encoder_, 5);
+    lame_init_params(encoder_);
   }
   converter(converter const&) = delete;
   converter&operator=(converter const&) = delete;
   ~converter()
   {
     lame_close(encoder_);
+  }
+
+  void process(path const& /*filename*/)
+  {
+
   }
 
 private:
@@ -36,7 +41,7 @@ void
 convert(path const& filename)
 {
   converter c;
-  c.process(filename)
+  c.process(filename);
 }
 
 void

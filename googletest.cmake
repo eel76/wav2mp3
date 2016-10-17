@@ -10,10 +10,10 @@ ExternalProject_Get_Property(googletest binary_dir)
 
 add_library(googletest-static STATIC IMPORTED)
 set_property(TARGET googletest-static PROPERTY IMPORTED_LOCATION "${binary_dir}/googlemock/gtest/${CMAKE_CFG_INTDIR}/gtest.lib")
-target_include_directories(googletest-static INTERFACE "${source_dir}/googletest/include")
+set_property(TARGET googletest-static PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${source_dir}/googletest/include")
 
 if (MSVC)
-  target_compile_options(googletest-static INTERFACE $<$<CONFIG:Debug>:/MTd> $<$<NOT:$<CONFIG:Debug>>:/MT>)
+  set_property(TARGET googletest-static PROPERTY INTERFACE_COMPILE_OPTIONS $<$<CONFIG:Debug>:/MTd> $<$<NOT:$<CONFIG:Debug>>:/MT>)
 endif()
 
 add_dependencies(googletest-static googletest)
