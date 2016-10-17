@@ -9,26 +9,25 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT $
 set(sources mutex.cpp thread.cpp wav_files.cpp)
 set(headers lock_guard.h monitor.h mutex.h path.h thread.h wav_files.h)
 set(tests)
+set(modules gtest.cmake lame.cmake)
 
-add_executable(${PROJECT_NAME} ${sources} ${headers} main.cpp readme.txt)
-add_executable(${PROJECT_NAME}-unit-tests ${sources} ${headers} ${tests} main.test.cpp)
+if(WIN32)
+  list(APPEND modules pthreads-win32.cmake)
+  set(pthreads pthreads-win32)
+endif()
+
+foreach(module ${modules})
+  include(${module})
+endforeach()
+
+add_executable(${PROJECT_NAME} ${modules} ${sources} ${headers} main.cpp readme.txt)
+add_executable(${PROJECT_NAME}-unit-tests ${modules} ${sources} ${headers} ${tests} main.test.cpp)
 
 add_test(${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/samples)
 add_test(${PROJECT_NAME}-unit-tests ${PROJECT_NAME}-unit-tests)
 
-include(googletest.cmake)
-include(lame.cmake)
+target_link_libraries(${PROJECT_NAME} lame ${pthreads})
+target_link_libraries(${PROJECT_NAME}-unit-tests gtest lame ${pthreads})
 
-target_link_libraries(${PROJECT_NAME} libmp3lame-static)
-target_link_libraries(${PROJECT_NAME}-unit-tests googletest-static libmp3lame-static)
-
-if(WIN32)
-  include(pthreads-win32.cmake)
-
-  target_link_libraries(${PROJECT_NAME} lib-pthreads-win32)
-  target_link_libraries(${PROJECT_NAME}-unit-tests lib-pthreads-win32)
-
-  set_target_properties(pthreads-win32 PROPERTIES FOLDER "ExternalProjects")
-endif()
-
-set_target_properties(googletest lame PROPERTIES FOLDER "ExternalProjects")
+set_target_properties(gtest lame ${pthreads} PROPERTIES FOLDER "ExternalProjects")
+source_group("Project Files" FILES ${modules})
