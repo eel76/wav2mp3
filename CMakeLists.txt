@@ -2,24 +2,28 @@ cmake_minimum_required(VERSION 3.0)
 project(wav2mp3)
 enable_testing()
 
+if(CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE) 
+endif()
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
-set(sources mutex.cpp thread.cpp wav_files.cpp lame.cmake)
+set(sources mutex.cpp thread.cpp wav_files.cpp lame/lame.cmake)
 set(headers lock_guard.h monitor.h mutex.h path.h thread.h wav_files.h)
 set(tests)
 
-include(gtest.cmake)
-include(lame.cmake)
+include(gtest/gtest.cmake)
+include(lame/lame.cmake)
 
 if(WIN32)
-  include(pthreads-win32.cmake)
-  list(APPEND sources pthreads-win32.cmake)
+  include(pthreads-win32/pthreads-win32.cmake)
+  list(APPEND sources pthreads-win32/pthreads-win32.cmake)
   set(pthreads pthreads-win32)
 endif()
 
 add_executable(${PROJECT_NAME} ${sources} ${headers} main.cpp readme.txt)
-add_executable(${PROJECT_NAME}-unit-tests ${tests} ${sources} ${headers} main.test.cpp gtest.cmake)
+add_executable(${PROJECT_NAME}-unit-tests ${tests} ${sources} ${headers} main.test.cpp gtest/gtest.cmake)
 
 target_link_libraries(${PROJECT_NAME} lame ${pthreads})
 target_link_libraries(${PROJECT_NAME}-unit-tests gtest lame ${pthreads})
