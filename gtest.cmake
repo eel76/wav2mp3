@@ -1,3 +1,5 @@
+include(ExternalProject)
+
 ExternalProject_Add(gtest-build
   GIT_REPOSITORY https://github.com/google/googletest.git
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/googletest

@@ -1,3 +1,5 @@
+include(ExternalProject)
+
 ExternalProject_Add(pthreads-win32-build
   URL http://downloads.sourceforge.net/project/pthreads4w/pthreads-w32-2-9-1-release.zip
   PREFIX ${CMAKE_CURRENT_BINARY_DIR}/pthreads-win32-2.9.1
