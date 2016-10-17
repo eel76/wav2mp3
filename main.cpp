@@ -12,43 +12,57 @@
 using namespace wav2mp3;
 
 namespace wav2mp3 {
+class converter
+{
+public:
+  converter()
+    : encoder_(lame_init())
+  {
+    lame_set_quality(encoder, 5);
+    lame_init_params(encoder);
+  }
+  converter(converter const&) = delete;
+  converter&operator=(converter const&) = delete;
+  ~converter()
+  {
+    lame_close(encoder_);
+  }
+
+private:
+  lame_global_flags* encoder_;
+};
+
 void
 convert(path const& filename)
 {
-  lame_global_flags* encoder = lame_init();
-  lame_set_quality(encoder, 5);
-  lame_init_params(encoder);
-  lame_close(encoder);
+  converter c;
+  c.process(filename)
 }
 
 void
 process(std::vector<path> const& collection)
 {
-  size_t const hardware_concurrency = thread::hardware_concurrency();
-  // std::cout << "Hardware concurrency: " << hardware_concurrency << std::endl;
-
-  size_t const thread_count =
-    std::min<size_t>(hardware_concurrency, collection.size());
-  // std::cout << "Thread count: " << thread_count << std::endl;
-
-  monitor<std::reference_wrapper<std::ostream>> synchronized_out{ std::cout };
+  monitor<std::reference_wrapper<std::ostream>> synchronized_cout{ std::cout };
   monitor<size_t> atomic{ 0 };
+
+  size_t const hardware_concurrency = thread::hardware_concurrency();
+  size_t const thread_count = std::min(hardware_concurrency, collection.size());
 
   std::vector<thread> threads;
   threads.reserve(thread_count);
 
   for (size_t t = 0; t < thread_count; ++t)
-    threads.emplace_back([&, t]() {
+    threads.emplace_back([&]() {
       while (true) {
-        size_t const position = atomic([](size_t& counter) { return counter++; });
-        if (position >= collection.size())
+        size_t const i = atomic([](size_t& value) { return value++; });
+        if (i >= collection.size())
           break;
 
-        synchronized_out([&](std::ostream& str) {
-          str << "Converting " << collection[position] << std::endl;
+        synchronized_cout([&](std::ostream& str) {
+          str << "Converting " << collection[i] << std::endl;
         });
 
-        convert(collection[position]);
+        convert(collection[i]);
       }
     });
 }
@@ -58,8 +72,8 @@ int
 main(int argc, char* argv[])
 {
   if (argc != 2) {
-    std::cout << "Usage: <" << path{ argv[0] }.filename() << "> path_to_wav_collection"
-              << std::endl;
+    std::cout << "Usage: <" << path{ argv[0] }.filename()
+              << "> path_to_wav_collection" << std::endl;
     return 1;
   }
 
