@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <system_error>
 #include <utility>
@@ -22,27 +23,36 @@ public:
     lame_init_params(encoder_);
   }
   converter(converter const&) = delete;
-  converter&operator=(converter const&) = delete;
-  ~converter()
-  {
-    lame_close(encoder_);
-  }
+  converter& operator=(converter const&) = delete;
+  ~converter() { lame_close(encoder_); }
 
-  void process(path const& /*filename*/)
+  void process(path filename)
   {
+    std::ifstream wav{ filename, std::ifstream::binary };
+    int num_samples = 0;
 
+    std::vector<unsigned char> mp3buf;
+    mp3buf.resize(num_samples * 5 / 4 + 7200);
+
+    int mp3size =
+      lame_encode_buffer(encoder_, nullptr, nullptr, num_samples, mp3buf.data(),
+                         static_cast<int>(mp3buf.size()));
+    if (mp3size < 0)
+      return;
+
+    std::basic_ofstream<unsigned char> mp3{ filename.replace_extension(".mp3"), std::ofstream::binary };
+    mp3.write(mp3buf.data(), mp3size);
+
+    mp3size =
+      lame_encode_flush(encoder_, mp3buf.data(), static_cast<int>(mp3buf.size());
+
+    if (mp3size > 0)
+      mp3.write(mp3buf.data(), mp3size);
   }
 
 private:
   lame_global_flags* encoder_;
 };
-
-void
-convert(path const& filename)
-{
-  converter c;
-  c.process(filename);
-}
 
 void
 process(std::vector<path> const& collection)
@@ -58,6 +68,8 @@ process(std::vector<path> const& collection)
 
   for (size_t t = 0; t < thread_count; ++t)
     threads.emplace_back([&]() {
+      converter c;
+
       while (true) {
         size_t const i = atomic([](size_t& value) { return value++; });
         if (i >= collection.size())
@@ -67,7 +79,7 @@ process(std::vector<path> const& collection)
           str << "Converting " << collection[i] << std::endl;
         });
 
-        convert(collection[i]);
+        c.process(collection[i]);
       }
     });
 }
