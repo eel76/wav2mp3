@@ -28,6 +28,12 @@ add_executable(${PROJECT_NAME}-unit-tests ${tests} ${sources} ${headers} main.te
 target_link_libraries(${PROJECT_NAME} lame ${pthreads})
 target_link_libraries(${PROJECT_NAME}-unit-tests gtest lame ${pthreads})
 
+if(WIN32)
+  get_property(location TARGET pthreads-win32 PROPERTY LOCATION)
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${location}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+  add_custom_command(TARGET ${PROJECT_NAME}-unit-tests POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${location}" "$<TARGET_FILE_DIR:${PROJECT_NAME}-unit-tests>")
+endif()
+
 add_test(${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/samples)
 add_test(${PROJECT_NAME}-unit-tests ${PROJECT_NAME}-unit-tests)
 
