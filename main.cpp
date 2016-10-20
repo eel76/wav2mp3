@@ -44,7 +44,7 @@ public:
     mp3.write(mp3buf.data(), mp3size);
 
     mp3size =
-      lame_encode_flush(encoder_, mp3buf.data(), static_cast<int>(mp3buf.size());
+      lame_encode_flush(encoder_, mp3buf.data(), static_cast<int>(mp3buf.size()));
 
     if (mp3size > 0)
       mp3.write(mp3buf.data(), mp3size);

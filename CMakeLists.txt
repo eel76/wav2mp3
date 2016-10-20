@@ -7,7 +7,7 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT $
 
 set(sources mutex.cpp thread.cpp wav_files.cpp lame/lame.cmake)
 set(headers lock_guard.h monitor.h mutex.h path.h thread.h wav_files.h)
-set(tests)
+set(tests monitor.test.cpp thread.test.cpp)
 
 include(gtest/gtest.cmake)
 include(lame/lame.cmake)
