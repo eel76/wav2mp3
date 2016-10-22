@@ -3,9 +3,9 @@
 
 using namespace wav2mp3;
 
-TEST(Thread, ExecutesFunction)
+TEST(Thread, InvokesFunction)
 {
-  int value = 0;
+  auto value = 0;
   {
     thread t{ [&]() { ++value; } };
   }
@@ -14,7 +14,7 @@ TEST(Thread, ExecutesFunction)
 
 TEST(Thread, IsMovable)
 {
-  int value = 0;
+  auto value = 0;
   {
     thread t{ [&]() { ++value; } };
     thread u{ std::move(t) };

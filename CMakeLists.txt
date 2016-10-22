@@ -6,8 +6,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
 set(sources mutex.cpp thread.cpp wav_files.cpp lame/lame.cmake)
-set(headers lock_guard.h monitor.h mutex.h path.h thread.h wav_files.h)
-set(tests monitor.test.cpp thread.test.cpp)
+set(headers lock_guard.h monitor.h mutex.h path.h thread.h wav_files.h wave_format_exception.h)
+set(tests monitor.test.cpp mutex.test.cpp thread.test.cpp)
 
 include(gtest/gtest.cmake)
 include(lame/lame.cmake)
@@ -30,7 +30,9 @@ if(WIN32)
   add_custom_command(TARGET ${PROJECT_NAME}-unit-tests POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${location}" "$<TARGET_FILE_DIR:${PROJECT_NAME}-unit-tests>")
 endif()
 
-add_test(${PROJECT_NAME} ${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/samples)
+file(DOWNLOAD https://www.starface.de/de/Service/moh/00_starface-music.wav "${CMAKE_CURRENT_BINARY_DIR}/test/${PROJECT_NAME}/00_starface-music.wav")
+
+add_test(${PROJECT_NAME} ${PROJECT_NAME} "${CMAKE_CURRENT_BINARY_DIR}/test/${PROJECT_NAME}")
 add_test(${PROJECT_NAME}-unit-tests ${PROJECT_NAME}-unit-tests)
 
 source_group("External project Files" REGULAR_EXPRESSION "[.]cmake$")
