@@ -5,8 +5,8 @@ enable_testing()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
-set(sources mutex.cpp pcm.cpp thread.cpp wav_files.cpp lame/lame.cmake)
-set(headers lame_encoder_exception.h lock_guard.h monitor.h mutex.h path.h pcm.h thread.h wav_files.h wave_format_exception.h)
+set(sources lame_encoder.cpp mp3.cpp mutex.cpp pcm.cpp thread.cpp wav_files.cpp lame/lame.cmake)
+set(headers lame_encoder.h lame_encoder_exception.h lock_guard.h monitor.h mp3.h mutex.h path.h pcm.h thread.h wav_files.h wave_format_exception.h)
 set(tests monitor.test.cpp mutex.test.cpp thread.test.cpp)
 
 include(gtest/gtest.cmake)

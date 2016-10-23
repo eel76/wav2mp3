@@ -1,3 +1,4 @@
+#include <iosfwd>
 #include <vector>
 
 namespace wav2mp3 {
@@ -5,6 +6,12 @@ namespace wav2mp3 {
 class pcm
 {
 public:
+  struct sample
+  {
+    short left;
+    short right;
+  };
+
   pcm()
     : samples_{}
     , samples_per_second_{ 0 }
@@ -12,11 +19,6 @@ public:
   }
   ~pcm() = default;
 
-  struct sample
-  {
-    short left;
-    short right;
-  };
   std::vector<sample> const& samples() const
   {
     return samples_;

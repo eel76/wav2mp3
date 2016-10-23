@@ -1,116 +1,23 @@
 #include <algorithm>
-#include <cassert>
 #include <fstream>
 #include <iostream>
 #include <system_error>
 #include <utility>
 
-#include <lame.h>
-
 #include "monitor.h"
+#include "mp3.h"
 #include "pcm.h"
 #include "thread.h"
 #include "wav_files.h"
-#include "lame_encoder_exception.h"
 #include "wave_format_exception.h"
+
+// #include "lame_encoder.cpp"
 
 using namespace wav2mp3;
 
 namespace wav2mp3 {
 
-class lame_encoder
-{
-public:
-  lame_encoder()
-    : global_flags_{ lame_init() }
-  {
-    if (!global_flags_)
-      throw lame_encoder_exception{ "Unable to init lame encoder" };
-  }
-  lame_encoder(lame_encoder const&) = delete;
-  lame_encoder& operator=(lame_encoder const&) = delete;
-  ~lame_encoder()
-  {
-    lame_close(global_flags_);
-  }
-
-  operator lame_global_flags*() const
-  {
-    return global_flags_;
-  }
-
-private:
-  lame_global_flags* global_flags_;
-};
-
-  std::vector<unsigned char> encode(pcm const& source)
-  {
-    lame_encoder encoder;
-
-    if (lame_set_in_samplerate(encoder, source.samples_per_second()) != 0)
-      throw lame_encoder_exception{ "Unable to init encoder samplerate" };
-
-    if (lame_set_num_channels(encoder, source.channels()) != 0)
-      throw lame_encoder_exception{ "Unable to init encoder channels" };
-
-    if (lame_set_quality(encoder, 5) != 0)
-      throw lame_encoder_exception{ "Unable to init encoder quality" };
-
-    if (lame_init_params(encoder) != 0)
-      throw lame_encoder_exception{ "Unable to init encoder quality" };
-
-    std::vector<pcm::sample> samples = source.samples();
-
-    std::vector<unsigned char> buffer;
-    buffer.resize(source.samples().size() * 5 / 4 + 7200);
-
-    int mp3size =
-      lame_encode_buffer_interleaved(
-        encoder,
-        &(samples.data()->left),
-        static_cast<int>(samples.size()),
-        buffer.data(),
-        static_cast<int>(buffer.size()));
-
-    if (mp3size < 0)
-      return{};
-
-    std::vector<unsigned char> frames;
-    frames.insert(frames.end(), buffer.data(), buffer.data() + mp3size);
-
-    mp3size = lame_encode_flush(encoder, buffer.data(),
-      static_cast<int>(buffer.size()));
-
-    if (mp3size > 0)
-      frames.insert(frames.end(), buffer.data(), buffer.data() + mp3size);
-
-    return frames;
-  }
-
-class mp3
-{
-public:
-  explicit mp3(pcm const& source)
-    : frames_{ encode(source) }
-  {
-  }
-  ~mp3() = default;
-
-  friend std::ostream& operator << (std::ostream& ostr, mp3 const& data)
-  {
-    return ostr.write(reinterpret_cast<char const*> (data.frames_.data()), data.frames_.size());
-  }
-
-  std::vector<unsigned char> const& frames() const
-  {
-    return frames_;
-  }
-
-private:
-  std::vector<unsigned char> frames_;
-};
-
-void convert(path filename)
+void process(path filename)
 {
   pcm input;
   std::ifstream{ filename, std::ifstream::binary } >> input;
@@ -141,7 +48,7 @@ process(std::vector<path> const& collection)
             str << t << ": processing " << collection[i] << std::endl;
           });
 
-          convert(collection[i]);
+          process(collection[i]);
 
           synchronized_cout([&](std::ostream& str) {
             str << t << ": converted  " << collection[i] << std::endl;
