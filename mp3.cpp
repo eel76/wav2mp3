@@ -1,5 +1,5 @@
 #include "mp3.h"
-#include "lame.h"
+#include "lame_encoder.h"
 
 #include <ostream>
 

@@ -1,4 +1,4 @@
-#include "lame.h"
+#include "lame_encoder.h"
 #include "lame_encoder_exception.h"
 
 #include <lame.h>
@@ -26,7 +26,7 @@ lame_encoder::process(std::vector<pcm::sample> samples)
   std::vector<unsigned char> buffer;
   buffer.resize(samples.size() * 5 / 4 + 7200);
 
-  int const frame_bytes = lame_encode_buffer_interleaved(
+  auto frame_bytes = lame_encode_buffer_interleaved(
     flags_, &(samples.data()->left), static_cast<int>(samples.size()),
     buffer.data(), static_cast<int>(buffer.size()));
 
@@ -35,11 +35,11 @@ lame_encoder::process(std::vector<pcm::sample> samples)
 
   std::vector<unsigned char> frames{ buffer.data(), buffer.data() + frame_bytes };
 
-  int mp3size = lame_encode_flush(flags_, buffer.data(),
+  frame_bytes = lame_encode_flush(flags_, buffer.data(),
     static_cast<int>(buffer.size()));
 
-  if (mp3size > 0)
-    frames.insert(frames.end(), buffer.data(), buffer.data() + mp3size);
+  if (frame_bytes > 0)
+    frames.insert(frames.end(), buffer.data(), buffer.data() + frame_bytes);
 
   return frames;
 }
