@@ -5,28 +5,7 @@
 
 namespace wav2mp3 {
 
-std::vector<unsigned char>
-lame::encode(pcm const& source, int quality)
-{
-  lame encoder;
-  encoder.init(source.samples_per_second(), source.channels(), quality);
-
-  return encoder.process(source.samples());
-}
-
-lame::lame()
-  : flags_{ lame_init() }
-{
-  if (!flags_)
-    throw lame_encoder_exception{ "Unable to init lame encoder" };
-}
-lame::~lame()
-{
-  lame_close(flags_);
-}
-
-void
-lame::init(int samples_per_second, int channels, int quality)
+lame_encoder::lame_encoder(int samples_per_second, int channels, int quality)
 {
   if (lame_set_in_samplerate(flags_, samples_per_second) != 0)
     throw lame_encoder_exception{ "Unable to init encoder samplerate" };
@@ -42,7 +21,7 @@ lame::init(int samples_per_second, int channels, int quality)
 }
 
 std::vector<unsigned char>
-lame::process(std::vector<pcm::sample> samples)
+lame_encoder::process(std::vector<pcm::sample> samples)
 {
   std::vector<unsigned char> buffer;
   buffer.resize(samples.size() * 5 / 4 + 7200);
@@ -63,5 +42,16 @@ lame::process(std::vector<pcm::sample> samples)
     frames.insert(frames.end(), buffer.data(), buffer.data() + mp3size);
 
   return frames;
+}
+
+lame_encoder::flags::flags()
+  : lame_global_flags_{ lame_init() }
+{
+  if (!lame_global_flags_)
+    throw lame_encoder_exception{ "Unable to init lame encoder" };
+}
+lame_encoder::flags::~flags()
+{
+  lame_close(lame_global_flags_);
 }
 }

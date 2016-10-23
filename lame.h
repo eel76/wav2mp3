@@ -6,20 +6,31 @@ typedef struct lame_global_struct lame_global_flags;
 
 namespace wav2mp3 {
 
-class lame
+class lame_encoder
 {
 public:
-  static std::vector<unsigned char> encode(pcm const& source, int quality);
+  lame_encoder(int samples_per_second, int channels, int quality);
+  ~lame_encoder() = default;
 
-private:
-  lame();
-  lame(lame const&) = delete;
-  lame& operator=(lame const&) = delete;
-  ~lame();
-
-  void init(int samples_per_second, int channels, int quality);
   std::vector<unsigned char> process(std::vector<pcm::sample> samples);
 
-  lame_global_flags* flags_;
+private:
+  class flags
+  {
+  public:
+    flags();
+    flags(flags const& other) = delete;
+    flags& operator=(flags const& other) = delete;
+    ~flags();
+
+    operator lame_global_flags*() const
+    {
+      return lame_global_flags_;
+    }
+  private:
+    lame_global_flags* lame_global_flags_;
+  };
+
+  flags flags_;
 };
 }
