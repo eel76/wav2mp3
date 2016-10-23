@@ -37,7 +37,7 @@ process(std::vector<path> const& collection)
   threads.reserve(thread_count);
 
   for (size_t t = 0; t < thread_count; ++t)
-    threads.emplace_back([&]() {
+    threads.emplace_back([&,t]() {
       while (true) {
         size_t const i = atomic([](size_t& value) { return value++; });
         if (i >= collection.size())
