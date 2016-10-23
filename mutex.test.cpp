@@ -11,7 +11,7 @@ void
 pause()
 {
   for (int i = 0; i < 100; ++i)
-    auto mem = std::make_unique<char[]>( 256 );
+    auto mem = std::make_unique<char[]>(256);
 }
 
 TEST(Mutex, IsLockable)
@@ -26,8 +26,7 @@ TEST(Mutex, IsOftenLockable)
   mutex m;
 
   auto guard = std::make_unique<lock_guard<mutex>>(m);
-  for (int i = 0; i < 5; ++i)
-  {
+  for (int i = 0; i < 10; ++i) {
     guard.reset();
     guard = std::make_unique<lock_guard<mutex>>(m);
   }
@@ -67,4 +66,3 @@ TEST(Mutex, SynchronizesWritingThread)
   auto wait = std::make_unique<lock_guard<mutex>>(m);
   ++value;
 }
-

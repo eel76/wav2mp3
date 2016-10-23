@@ -8,152 +8,115 @@
 #include <lame.h>
 
 #include "monitor.h"
+#include "pcm.h"
 #include "thread.h"
 #include "wav_files.h"
+#include "lame_encoder_exception.h"
 #include "wave_format_exception.h"
 
 using namespace wav2mp3;
 
 namespace wav2mp3 {
 
-class pcm
+class lame_encoder
 {
 public:
-  struct sample
+  lame_encoder()
+    : global_flags_{ lame_init() }
   {
-    short left;
-    short right;
-  };
-  std::vector<sample>& samples()
+    if (!global_flags_)
+      throw lame_encoder_exception{ "Unable to init lame encoder" };
+  }
+  lame_encoder(lame_encoder const&) = delete;
+  lame_encoder& operator=(lame_encoder const&) = delete;
+  ~lame_encoder()
   {
-    return samples_;
+    lame_close(global_flags_);
   }
 
-  friend std::istream& operator >> (std::istream& istr, pcm& ret)
+  operator lame_global_flags*() const
   {
-    wav_header header;
-
-    if (!istr.read(header.riff, sizeof(header)))
-      throw wave_format_exception("header not found");
-
-    if (std::string{ header.riff, sizeof(header.riff) } != "RIFF")
-      throw wave_format_exception("RIFF header not found");
-
-    if (std::string{ header.wave, sizeof(header.wave) } != "WAVE")
-      throw wave_format_exception("WAVE header not found");
-
-    if (std::string{ header.fmt, sizeof(header.fmt) } != "fmt ")
-      throw wave_format_exception("FMT header not found");
-
-    if (header.fmt_size != 16)
-      throw wave_format_exception("Unexpected FMT header size");
-
-    if (header.audio_format != wav_header::PCM)
-      throw wave_format_exception("Unsupported format");
-
-    if (header.bits_per_sample != 16)
-      throw wave_format_exception("Unsupported format");
-
-    if (header.number_of_channels != 2)
-      throw wave_format_exception("Unsupported format");
-
-    if (header.samples_per_second != 44100)
-      throw wave_format_exception("Unsupported format");
-
-    if (std::string{ header.data, sizeof(header.data) } != "data")
-      throw wave_format_exception("DATA header not found");
-
-    uint16_t const bytes_per_sample = header.bits_per_sample / 8;
-    size_t const number_of_samples = header.data_size / bytes_per_sample / header.number_of_channels;
-
-    assert(header.data_size == sizeof(sample)* number_of_samples);
-
-    std::vector<sample> samples;
-    samples.resize(number_of_samples);
-
-    if (!istr.read(reinterpret_cast<char*>(samples.data()), header.data_size))
-      throw wave_format_exception("Unexpected end of file");
-
-    swap(ret.samples_, samples);
-    return istr;
+    return global_flags_;
   }
 
 private:
-  struct wav_header
-  {
-    enum
-    {
-      PCM = 1
-    };
-
-    char     riff[4];
-    uint32_t riff_size;
-    char     wave[4];
-    char     fmt[4];
-    uint32_t fmt_size;
-    uint16_t audio_format;
-    uint16_t number_of_channels;
-    uint32_t samples_per_second;
-    uint32_t bytes_per_second;
-    uint16_t block_alignment;
-    uint16_t bits_per_sample;
-    char     data[4];
-    uint32_t data_size;
-  };
-
-  std::vector<sample> samples_;
+  lame_global_flags* global_flags_;
 };
 
-class converter
-{
-public:
-  explicit converter(int quality)
-    : encoder_(lame_init())
+  std::vector<unsigned char> encode(pcm const& source)
   {
-    // int CDECL lame_set_in_samplerate(lame_global_flags *, int);
-    // int CDECL lame_set_num_channels(lame_global_flags *, int);
+    lame_encoder encoder;
 
-    lame_set_quality(encoder_, quality);
-    lame_init_params(encoder_);
-  }
-  converter(converter const&) = delete;
-  converter& operator=(converter const&) = delete;
-  ~converter() { lame_close(encoder_); }
+    if (lame_set_in_samplerate(encoder, source.samples_per_second()) != 0)
+      throw lame_encoder_exception{ "Unable to init encoder samplerate" };
 
-  void process(path filename)
-  {
-    pcm input;
-    std::ifstream{ filename, std::ifstream::binary } >> input;
+    if (lame_set_num_channels(encoder, source.channels()) != 0)
+      throw lame_encoder_exception{ "Unable to init encoder channels" };
 
-    std::vector<unsigned char> mp3buf;
-    mp3buf.resize(input.samples().size() * 5 / 4 + 7200);
+    if (lame_set_quality(encoder, 5) != 0)
+      throw lame_encoder_exception{ "Unable to init encoder quality" };
+
+    if (lame_init_params(encoder) != 0)
+      throw lame_encoder_exception{ "Unable to init encoder quality" };
+
+    std::vector<pcm::sample> samples = source.samples();
+
+    std::vector<unsigned char> buffer;
+    buffer.resize(source.samples().size() * 5 / 4 + 7200);
 
     int mp3size =
       lame_encode_buffer_interleaved(
-      encoder_,
-      &(input.samples().data()->left),
-        static_cast<int>(input.samples().size()),
-      mp3buf.data(),
-      static_cast<int>(mp3buf.size()));
+        encoder,
+        &(samples.data()->left),
+        static_cast<int>(samples.size()),
+        buffer.data(),
+        static_cast<int>(buffer.size()));
 
     if (mp3size < 0)
-      return;
+      return{};
 
-    std::basic_ofstream<unsigned char> mp3{ filename.replace_extension(".mp3"),
-                                            std::ofstream::binary };
-    mp3.write(mp3buf.data(), mp3size);
+    std::vector<unsigned char> frames;
+    frames.insert(frames.end(), buffer.data(), buffer.data() + mp3size);
 
-    mp3size = lame_encode_flush(encoder_, mp3buf.data(),
-                                static_cast<int>(mp3buf.size()));
+    mp3size = lame_encode_flush(encoder, buffer.data(),
+      static_cast<int>(buffer.size()));
 
     if (mp3size > 0)
-      mp3.write(mp3buf.data(), mp3size);
+      frames.insert(frames.end(), buffer.data(), buffer.data() + mp3size);
+
+    return frames;
+  }
+
+class mp3
+{
+public:
+  explicit mp3(pcm const& source)
+    : frames_{ encode(source) }
+  {
+  }
+  ~mp3() = default;
+
+  friend std::ostream& operator << (std::ostream& ostr, mp3 const& data)
+  {
+    return ostr.write(reinterpret_cast<char const*> (data.frames_.data()), data.frames_.size());
+  }
+
+  std::vector<unsigned char> const& frames() const
+  {
+    return frames_;
   }
 
 private:
-  lame_global_flags* encoder_;
+  std::vector<unsigned char> frames_;
 };
 
+void convert(path filename)
+{
+  pcm input;
+  std::ifstream{ filename, std::ifstream::binary } >> input;
+  std::ofstream{ filename.replace_extension(".mp3"), std::ofstream::binary } << mp3{ input };
+
+}
 void
 process(std::vector<path> const& collection)
 {
@@ -168,22 +131,25 @@ process(std::vector<path> const& collection)
 
   for (size_t t = 0; t < thread_count; ++t)
     threads.emplace_back([&]() {
-    converter c{5};
-
       while (true) {
         size_t const i = atomic([](size_t& value) { return value++; });
         if (i >= collection.size())
           break;
 
         try {
-          c.process(collection[i]);
+          synchronized_cout([&](std::ostream& str) {
+            str << t << ": processing " << collection[i] << std::endl;
+          });
+
+          convert(collection[i]);
 
           synchronized_cout([&](std::ostream& str) {
-            str << "Converted " << collection[i] << std::endl;
+            str << t << ": converted  " << collection[i] << std::endl;
           });
-        } catch (std::exception& e) {
+        }
+        catch (wave_format_exception& e) {
           synchronized_cout([&](std::ostream& str) {
-            str << "Skipped " << collection[i] << ": " << e.what() << std::endl;
+            str << t << ": skipped    " << collection[i] << ": " << e.what() << std::endl;
           });
         }
       }
