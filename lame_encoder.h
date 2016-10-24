@@ -14,28 +14,26 @@ public:
     Good = 5
   };
 
-  explicit lame_encoder(int samples_per_second, encoding_quality quality = encoding_quality::Good);
+  explicit lame_encoder(int              samples_per_second,
+                        encoding_quality quality = encoding_quality::Good);
   ~lame_encoder() = default;
 
   std::vector<unsigned char> process(std::vector<pcm::sample> samples);
 
 private:
-  class flags
+  class state
   {
   public:
-    flags();
-    flags(flags const& other) = delete;
-    flags& operator=(flags const& other) = delete;
-    ~flags();
+    state();
+    state(state const& other) = delete;
+    state& operator=(state const& other) = delete;
+    ~state();
 
-    operator lame_global_flags*() const
-    {
-      return lame_global_flags_;
-    }
+    operator lame_global_flags*() const { return flags_; }
   private:
-    lame_global_flags* lame_global_flags_;
+    lame_global_flags* flags_;
   };
 
-  flags flags_;
+  state state_;
 };
 }

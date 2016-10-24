@@ -1,1 +1,3 @@
 BasedOnStyle: Mozilla
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: true

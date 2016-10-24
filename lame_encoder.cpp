@@ -7,16 +7,16 @@ namespace wav2mp3 {
 
 lame_encoder::lame_encoder(int samples_per_second, encoding_quality quality)
 {
-  if (lame_set_in_samplerate(flags_, samples_per_second) != 0)
+  if (lame_set_in_samplerate(state_, samples_per_second) != 0)
     throw lame_encoder_exception{ "Unable to init encoder samplerate" };
 
-  if (lame_set_num_channels(flags_, 2) != 0)
+  if (lame_set_num_channels(state_, 2) != 0)
     throw lame_encoder_exception{ "Unable to init encoder channels" };
 
-  if (lame_set_quality(flags_, static_cast<int>(quality)) != 0)
+  if (lame_set_quality(state_, static_cast<int>(quality)) != 0)
     throw lame_encoder_exception{ "Unable to init encoder quality" };
 
-  if (lame_init_params(flags_) != 0)
+  if (lame_init_params(state_) != 0)
     throw lame_encoder_exception{ "Unable to init encoder quality" };
 }
 
@@ -27,7 +27,7 @@ lame_encoder::process(std::vector<pcm::sample> samples)
   buffer.resize(samples.size() * 5 / 4 + 7200);
 
   auto frame_bytes = lame_encode_buffer_interleaved(
-    flags_, &(samples.data()->left), static_cast<int>(samples.size()),
+    state_, &(samples.data()->left), static_cast<int>(samples.size()),
     buffer.data(), static_cast<int>(buffer.size()));
 
   if (frame_bytes < 0)
@@ -37,7 +37,7 @@ lame_encoder::process(std::vector<pcm::sample> samples)
                                      buffer.data() + frame_bytes };
 
   frame_bytes =
-    lame_encode_flush(flags_, buffer.data(), static_cast<int>(buffer.size()));
+    lame_encode_flush(state_, buffer.data(), static_cast<int>(buffer.size()));
 
   if (frame_bytes > 0)
     frames.insert(frames.end(), buffer.data(), buffer.data() + frame_bytes);
@@ -45,14 +45,14 @@ lame_encoder::process(std::vector<pcm::sample> samples)
   return frames;
 }
 
-lame_encoder::flags::flags()
-  : lame_global_flags_{ lame_init() }
+lame_encoder::state::state()
+  : flags_{ lame_init() }
 {
-  if (!lame_global_flags_)
+  if (!flags_)
     throw lame_encoder_exception{ "Unable to init lame encoder" };
 }
-lame_encoder::flags::~flags()
+lame_encoder::state::~state()
 {
-  lame_close(lame_global_flags_);
+  lame_close(flags_);
 }
 }

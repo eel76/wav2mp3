@@ -4,8 +4,8 @@
 
 #include <algorithm>
 #include <cctype>
-#include <fstream>
 #include <experimental/filesystem>
+#include <fstream>
 
 using std::experimental::filesystem::directory_iterator;
 
@@ -35,13 +35,10 @@ is_wave_file(path const& filename)
 {
   wave_header header;
 
-  try
-  {
+  try {
     if (std::ifstream{ filename, std::ifstream::binary } >> header)
       return true;
-  }
-  catch (wave_format_exception const&)
-  {
+  } catch (wave_format_exception const&) {
   }
 
   return false;
