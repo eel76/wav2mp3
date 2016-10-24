@@ -14,8 +14,8 @@ public:
     Good = 5
   };
 
-  explicit lame_encoder(int              samples_per_second,
-                        encoding_quality quality = encoding_quality::Good);
+  lame_encoder(pcm::samplerate samples_per_second,
+               pcm::channels number_of_channels, encoding_quality quality);
   ~lame_encoder() = default;
 
   std::vector<unsigned char> process(std::vector<pcm::sample> samples);

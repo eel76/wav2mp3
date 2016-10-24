@@ -18,13 +18,13 @@ std::istream& operator >> (std::istream& istr, pcm& data)
   if (header.bits_per_sample != 16)
     throw wave_format_exception("Unsupported format");
 
-  if (header.number_of_channels != 2)
+  if (header.number_of_channels != 1 && header.number_of_channels != 2)
     throw wave_format_exception("Unsupported format");
 
   uint16_t const bytes_per_sample = header.bits_per_sample / 8;
-  size_t const number_of_samples = header.data_size / bytes_per_sample / header.number_of_channels;
+  size_t const number_of_samples = header.data_size / bytes_per_sample;
 
-  assert(header.data_size == sizeof(pcm::sample)* number_of_samples);
+  assert(header.data_size == sizeof(pcm::sample) * number_of_samples);
 
   std::vector<pcm::sample> samples;
   samples.resize(number_of_samples);
@@ -33,7 +33,8 @@ std::istream& operator >> (std::istream& istr, pcm& data)
     throw wave_format_exception("Unexpected end of file");
 
   swap(data.samples_, samples);
-  data.samples_per_second_ = header.samples_per_second;
+  data.samples_per_second_ = static_cast<pcm::samplerate> (header.samples_per_second);
+  data.number_of_channels_ = static_cast<pcm::channels> (header.number_of_channels);
 
   return istr;
 }
