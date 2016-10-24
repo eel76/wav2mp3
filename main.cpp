@@ -18,8 +18,9 @@ process(path filename)
 {
   pcm input;
   ifstream{ filename, ifstream::binary } >> input;
-  ofstream{ filename.replace_extension(".mp3"), ofstream::binary }
-    << mp3{ input };
+
+  mp3 output{ input };
+  ofstream{ filename.replace_extension(".mp3"), ofstream::binary } << output;
 }
 void
 process(vector<path> const& collection)
@@ -42,17 +43,17 @@ process(vector<path> const& collection)
 
         try {
           synchronized_cout([&](ostream& str) {
-            str << i << ": processing " << collection[i] << " in thread " << t << endl;
+            str << i << "> processing " << collection[i] << " in thread " << t
+                << endl;
           });
 
           process(collection[i]);
 
-          synchronized_cout([&](ostream& str) {
-            str << i << ": done" << endl;
-          });
+          synchronized_cout(
+            [&](ostream& str) { str << i << "> done" << endl; });
         } catch (wave_format_exception& e) {
           synchronized_cout([&](ostream& str) {
-            str << i << ": failed - " << e.what() << endl;
+            str << i << "> failed: " << e.what() << endl;
           });
         }
       }
