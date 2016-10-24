@@ -1,4 +1,4 @@
-#include "wav_files.h"
+#include "wave_files.h"
 #include "wave_format_exception.h"
 #include "wave_header.h"
 
@@ -22,7 +22,7 @@ directory_entries(path const& directory)
   return entries;
 }
 bool
-has_wav_extension(path const& filename)
+has_wave_file_extension(path const& filename)
 {
   path::string_type extension = filename.extension();
   std::transform(extension.begin(), extension.end(), extension.begin(),
@@ -31,7 +31,7 @@ has_wav_extension(path const& filename)
   return extension == path{ ".wav" };
 }
 bool
-is_wav_file(path const& filename)
+is_wave_file(path const& filename)
 {
   wave_header header;
 
@@ -49,12 +49,12 @@ is_wav_file(path const& filename)
 }
 
 std::vector<path>
-wav_files(path const& directory)
+wave_files(path const& directory)
 {
   std::vector<path> files;
 
   for (auto entry : directory_entries(directory))
-    if (has_wav_extension(entry) && is_wav_file(entry))
+    if (has_wave_file_extension(entry) && is_wave_file(entry))
       files.push_back(entry);
 
   return files;

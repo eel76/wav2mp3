@@ -2,7 +2,7 @@
 #include "mp3.h"
 #include "pcm.h"
 #include "thread.h"
-#include "wav_files.h"
+#include "wave_files.h"
 #include "wave_format_exception.h"
 
 #include <fstream>
@@ -71,7 +71,7 @@ main(int argc, char* argv[])
   }
 
   try {
-    process(wav_files(path{ argv[1] }));
+    process(wave_files(path{ argv[1] }));
   } catch (system_error& e) {
     cout << "System error: " << e.what() << endl;
     return e.code().value();
