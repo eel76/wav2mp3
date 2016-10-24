@@ -1,7 +1,8 @@
 #include "wav_files.h"
+#include "wave_format_exception.h"
+#include "wave_header.h"
 
 #include <algorithm>
-#include <array>
 #include <cctype>
 #include <fstream>
 #include <experimental/filesystem>
@@ -32,18 +33,18 @@ has_wav_extension(path const& filename)
 bool
 is_wav_file(path const& filename)
 {
-  std::array<char, 12> header;
-  if (!std::ifstream{ filename, std::ifstream::binary }.read(header.data(),
-                                                             header.size()))
-    return false;
+  wave_header header;
 
-  if (std::string{ header.data() + 0, 4 } != "RIFF")
-    return false;
+  try
+  {
+    if (std::ifstream{ filename, std::ifstream::binary } >> header)
+      return true;
+  }
+  catch (wave_format_exception const&)
+  {
+  }
 
-  if (std::string{ header.data() + 8, 4 } != "WAVE")
-    return false;
-
-  return true;
+  return false;
 }
 }
 

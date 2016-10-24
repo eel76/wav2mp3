@@ -5,8 +5,8 @@ enable_testing()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 
-set(sources lame_encoder.cpp mp3.cpp mutex.cpp pcm.cpp thread.cpp wav_files.cpp lame/lame.cmake)
-set(headers lame_encoder.h lame_encoder_exception.h lock_guard.h monitor.h mp3.h mutex.h path.h pcm.h thread.h wav_files.h wave_format_exception.h)
+set(sources lame_encoder.cpp mp3.cpp mutex.cpp pcm.cpp thread.cpp wav_files.cpp wave_header.cpp lame/lame.cmake)
+set(headers lame_encoder.h lame_encoder_exception.h lock_guard.h monitor.h mp3.h mutex.h path.h pcm.h thread.h wav_files.h wave_format_exception.h wave_header.h)
 set(tests monitor.test.cpp mutex.test.cpp thread.test.cpp)
 
 include(gtest/gtest.cmake)
@@ -38,7 +38,7 @@ if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/test/${PROJECT_NAME}")
   file(DOWNLOAD https://www.starface.de/de/Service/moh/03_funky-70s.wav "${CMAKE_CURRENT_BINARY_DIR}/test/${PROJECT_NAME}/03_funky-70s.wav" SHOW_PROGRESS)
 endif()
 
-add_test(${PROJECT_NAME} ${PROJECT_NAME} "${CMAKE_CURRENT_BINARY_DIR}/test/${PROJECT_NAME}")
+add_test(${PROJECT_NAME} ${PROJECT_NAME} "${CMAKE_CURRENT_BINARY_DIR}/test/${PROJECT_NAME}" >> "${CMAKE_CURRENT_BINARY_DIR}/test/${PROJECT_NAME}/log.txt")
 add_test(${PROJECT_NAME}-unit-tests ${PROJECT_NAME}-unit-tests)
 
 source_group("External project Files" REGULAR_EXPRESSION "[.]cmake$")
