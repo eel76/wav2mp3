@@ -42,18 +42,17 @@ process(vector<path> const& collection)
 
         try {
           synchronized_cout([&](ostream& str) {
-            str << t << ": processing " << collection[i] << endl;
+            str << i << ": processing " << collection[i] << " in thread " << t << endl;
           });
 
           process(collection[i]);
 
           synchronized_cout([&](ostream& str) {
-            str << t << ": converted  " << collection[i] << endl;
+            str << i << ": done" << endl;
           });
         } catch (wave_format_exception& e) {
           synchronized_cout([&](ostream& str) {
-            str << t << ": skipped    " << collection[i] << ": " << e.what()
-                << endl;
+            str << i << ": failed - " << e.what() << endl;
           });
         }
       }

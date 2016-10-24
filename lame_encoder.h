@@ -9,7 +9,12 @@ namespace wav2mp3 {
 class lame_encoder
 {
 public:
-  lame_encoder(int samples_per_second, int channels, int quality);
+  enum class encoding_quality : int
+  {
+    Good = 5
+  };
+
+  explicit lame_encoder(int samples_per_second, encoding_quality quality = encoding_quality::Good);
   ~lame_encoder() = default;
 
   std::vector<unsigned char> process(std::vector<pcm::sample> samples);

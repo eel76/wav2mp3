@@ -5,15 +5,15 @@
 
 namespace wav2mp3 {
 
-lame_encoder::lame_encoder(int samples_per_second, int channels, int quality)
+lame_encoder::lame_encoder(int samples_per_second, encoding_quality quality)
 {
   if (lame_set_in_samplerate(flags_, samples_per_second) != 0)
     throw lame_encoder_exception{ "Unable to init encoder samplerate" };
 
-  if (lame_set_num_channels(flags_, channels) != 0)
+  if (lame_set_num_channels(flags_, 2) != 0)
     throw lame_encoder_exception{ "Unable to init encoder channels" };
 
-  if (lame_set_quality(flags_, quality) != 0)
+  if (lame_set_quality(flags_, static_cast<int>(quality)) != 0)
     throw lame_encoder_exception{ "Unable to init encoder quality" };
 
   if (lame_init_params(flags_) != 0)
@@ -31,12 +31,13 @@ lame_encoder::process(std::vector<pcm::sample> samples)
     buffer.data(), static_cast<int>(buffer.size()));
 
   if (frame_bytes < 0)
-    return{};
+    return {};
 
-  std::vector<unsigned char> frames{ buffer.data(), buffer.data() + frame_bytes };
+  std::vector<unsigned char> frames{ buffer.data(),
+                                     buffer.data() + frame_bytes };
 
-  frame_bytes = lame_encode_flush(flags_, buffer.data(),
-    static_cast<int>(buffer.size()));
+  frame_bytes =
+    lame_encode_flush(flags_, buffer.data(), static_cast<int>(buffer.size()));
 
   if (frame_bytes > 0)
     frames.insert(frames.end(), buffer.data(), buffer.data() + frame_bytes);

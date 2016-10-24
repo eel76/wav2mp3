@@ -19,21 +19,11 @@ public:
   }
   ~pcm() = default;
 
-  std::vector<sample> const& samples() const
-  {
-    return samples_;
-  }
+  std::vector<sample> const& samples() const { return samples_; }
 
-  int channels() const
-  {
-    return 2;
-  }
-  int samples_per_second() const
-  {
-    return samples_per_second_;
-  }
+  int samples_per_second() const { return samples_per_second_; }
 
-  friend std::istream& operator>> (std::istream& istr, pcm& data);
+  friend std::istream& operator>>(std::istream& istr, pcm& data);
 
 private:
   std::vector<sample> samples_;
