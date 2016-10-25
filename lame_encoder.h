@@ -1,4 +1,5 @@
 #include "pcm.h"
+#include <memory>
 #include <vector>
 
 struct lame_global_struct;
@@ -21,19 +22,11 @@ public:
   std::vector<unsigned char> process(std::vector<pcm::sample> samples);
 
 private:
-  class state
+  using encoder = lame_global_flags;
+  struct delete_encoder
   {
-  public:
-    state();
-    state(state const& other) = delete;
-    state& operator=(state const& other) = delete;
-    ~state();
-
-    operator lame_global_flags*() const { return flags_; }
-  private:
-    lame_global_flags* flags_;
+    void operator()(encoder* garbage) const;
   };
-
-  state state_;
+  std::unique_ptr<encoder, delete_encoder> encoder_;
 };
 }
