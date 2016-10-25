@@ -65,8 +65,8 @@ int
 main(int argc, char* argv[])
 {
   if (argc != 2) {
-    cout << "Usage: <" << path{ argv[0] }.filename()
-         << "> path_to_wav_collection" << endl;
+    cout << "Usage: " << path{ argv[0] }.filename()
+         << " <path-to-wav-collection>" << endl;
     return 1;
   }
 

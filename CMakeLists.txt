@@ -22,7 +22,7 @@ else()
   set(pthreads Threads::Threads)
 endif()
 
-add_executable(${PROJECT_NAME} ${sources} ${headers} main.cpp readme.txt)
+add_executable(${PROJECT_NAME} ${sources} ${headers} main.cpp)
 add_executable(${PROJECT_NAME}-unit-tests ${tests} ${sources} ${headers} main.test.cpp gtest/gtest.cmake)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
@@ -38,8 +38,6 @@ if(WIN32)
 else()
   target_link_libraries(${PROJECT_NAME} stdc++fs)
   target_link_libraries(${PROJECT_NAME}-unit-tests stdc++fs)
-  #set_property(TARGET ${PROJECT_NAME} PROPERTY LINKER_FLAGS -lc++experimental -lstdc++fs)
-  #set_property(TARGET ${PROJECT_NAME}-unit-tests PROPERTY LINKER_FLAGS -lc++experimental -lstdc++fs)
 endif()
 
 if(NOT EXISTS "${CMAKE_CURRENT_BINARY_DIR}/test/${PROJECT_NAME}")
