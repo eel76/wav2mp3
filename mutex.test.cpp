@@ -8,7 +8,7 @@
 using namespace wav2mp3;
 
 void
-pause()
+delay()
 {
   for (int i = 0; i < 100; ++i)
     auto mem = std::make_unique<char[]>(256);
@@ -44,7 +44,7 @@ TEST(Mutex, SynchronizesReadingThread)
     ASSERT_EQ(value, 1);
   } };
 
-  pause();
+  delay();
   ++value;
   guard.reset();
 }
@@ -57,7 +57,7 @@ TEST(Mutex, SynchronizesWritingThread)
   auto guard{ std::make_unique<lock_guard<mutex>>(m) };
 
   thread t{ [&]() {
-    pause();
+    delay();
 
     ASSERT_EQ(value, 0);
     guard.reset();

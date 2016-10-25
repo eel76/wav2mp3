@@ -9,7 +9,7 @@ public:
     : what_{ what }
   {
   }
-  virtual char const* what() const { return what_.c_str(); }
+  char const* what() const noexcept override { return what_.c_str(); }
 
 private:
   std::string what_;

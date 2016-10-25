@@ -21,6 +21,9 @@ endif()
 add_executable(${PROJECT_NAME} ${sources} ${headers} main.cpp readme.txt)
 add_executable(${PROJECT_NAME}-unit-tests ${tests} ${sources} ${headers} main.test.cpp gtest/gtest.cmake)
 
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
+set_property(TARGET ${PROJECT_NAME}-unit-tests PROPERTY CXX_STANDARD 14)
+
 target_link_libraries(${PROJECT_NAME} lame ${pthreads})
 target_link_libraries(${PROJECT_NAME}-unit-tests gtest lame ${pthreads})
 
