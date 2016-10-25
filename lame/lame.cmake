@@ -15,6 +15,6 @@ add_library(lame STATIC IMPORTED)
 
 file(MAKE_DIRECTORY "${source_dir}/include")
 set_property(TARGET lame PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${source_dir}/include")
-set_property(TARGET lame PROPERTY IMPORTED_LOCATION "${binary_dir}/${CMAKE_CFG_INTDIR}/libmp3lame-static.lib")
+set_property(TARGET lame PROPERTY IMPORTED_LOCATION "${binary_dir}/${CMAKE_CFG_INTDIR}/${CMAKE_STATIC_LIBRARY_PREFIX}libmp3lame-static${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
 add_dependencies(lame lame-build)
