@@ -6,8 +6,10 @@
 namespace wav2mp3 {
 
 mp3::mp3(pcm const& source)
-  : frames_{ lame_encoder{ source.samples_per_second(), source.number_of_channels(), lame_encoder::encoding_quality::Good }.process(
-      source.samples()) }
+  : frames_{ lame_encoder{ source.samples_per_second(),
+                           source.number_of_channels(),
+                           lame_encoder::encoding_quality::Good }
+               .process(source.samples()) }
 {
 }
 

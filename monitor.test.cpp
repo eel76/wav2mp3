@@ -13,7 +13,7 @@ TEST(Monitor, HandlesValues)
 
 TEST(Monitor, HandlesReferences)
 {
-  int v = 0;
+  int                                  v{ 0 };
   monitor<std::reference_wrapper<int>> counter{ v };
   counter([](int& value) { ++value; });
   ASSERT_EQ(v, 1);

@@ -7,7 +7,8 @@
 
 namespace wav2mp3 {
 
-std::istream& operator >> (std::istream& istr, pcm& data)
+std::istream&
+operator>>(std::istream& istr, pcm& data)
 {
   wave_header header;
   istr >> header;
@@ -22,7 +23,7 @@ std::istream& operator >> (std::istream& istr, pcm& data)
     throw wave_format_exception("Unsupported format");
 
   uint16_t const bytes_per_sample = header.bits_per_sample / 8;
-  size_t const number_of_samples = header.data_size / bytes_per_sample;
+  size_t const   number_of_samples = header.data_size / bytes_per_sample;
 
   assert(header.data_size == sizeof(pcm::sample) * number_of_samples);
 
@@ -33,8 +34,10 @@ std::istream& operator >> (std::istream& istr, pcm& data)
     throw wave_format_exception("Unexpected end of file");
 
   swap(data.samples_, samples);
-  data.samples_per_second_ = static_cast<pcm::samplerate> (header.samples_per_second);
-  data.number_of_channels_ = static_cast<pcm::channels> (header.number_of_channels);
+  data.samples_per_second_ =
+    static_cast<pcm::samplerate>(header.samples_per_second);
+  data.number_of_channels_ =
+    static_cast<pcm::channels>(header.number_of_channels);
 
   return istr;
 }

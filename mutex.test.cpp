@@ -36,8 +36,8 @@ TEST(Mutex, SynchronizesReadingThread)
 {
   mutex m;
 
-  auto value = 0;
-  auto guard = std::make_unique<lock_guard<mutex>>(m);
+  auto value{ 0 };
+  auto guard{ std::make_unique<lock_guard<mutex>>(m) };
 
   thread t{ [&]() {
     auto wait = std::make_unique<lock_guard<mutex>>(m);
@@ -53,8 +53,8 @@ TEST(Mutex, SynchronizesWritingThread)
 {
   mutex m;
 
-  auto value = 0;
-  auto guard = std::make_unique<lock_guard<mutex>>(m);
+  auto value{ 0 };
+  auto guard{ std::make_unique<lock_guard<mutex>>(m) };
 
   thread t{ [&]() {
     pause();

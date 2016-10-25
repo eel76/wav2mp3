@@ -26,7 +26,7 @@ void
 process(vector<path> const& collection)
 {
   monitor<reference_wrapper<ostream>> synchronized_cout{ cout };
-  monitor<size_t> atomic{ 0 };
+  monitor<size_t>                     atomic{ 0 };
 
   size_t const hardware_concurrency = thread::hardware_concurrency();
   size_t const thread_count = min(hardware_concurrency, collection.size());

@@ -19,7 +19,7 @@ public:
   }
 
 private:
-  mutable T t_;
+  mutable T     t_;
   mutable mutex m_;
 };
 }

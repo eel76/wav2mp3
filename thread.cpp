@@ -26,7 +26,7 @@ public:
 
 private:
   std::function<void()> f_;
-  pthread_t thread_;
+  pthread_t             thread_;
 
   static void* start(void* arg)
   {

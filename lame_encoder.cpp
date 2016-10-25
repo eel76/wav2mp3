@@ -16,7 +16,8 @@ lame_encoder::lame_encoder(pcm::samplerate  samples_per_second,
   if (lame_set_in_samplerate(encoder_.get(), samples_per_second) != 0)
     throw lame_encoder_exception{ "Unable to init encoder samplerate" };
 
-  if (lame_set_num_channels(encoder_.get(), static_cast<int>(number_of_channels)) != 0)
+  if (lame_set_num_channels(encoder_.get(),
+                            static_cast<int>(number_of_channels)) != 0)
     throw lame_encoder_exception{ "Unable to init encoder channels" };
 
   if (lame_set_quality(encoder_.get(), static_cast<int>(quality)) != 0)
@@ -37,14 +38,15 @@ lame_encoder::process(std::vector<pcm::sample> samples)
   auto frame_bytes = 0;
 
   if (number_of_channels == 1)
-    frame_bytes = lame_encode_buffer(
-      encoder_.get(), samples.data(), samples.data(), static_cast<int>(samples.size()), buffer.data(),
-      static_cast<int>(buffer.size()));
+    frame_bytes =
+      lame_encode_buffer(encoder_.get(), samples.data(), samples.data(),
+                         static_cast<int>(samples.size()), buffer.data(),
+                         static_cast<int>(buffer.size()));
 
   if (number_of_channels == 2)
     frame_bytes = lame_encode_buffer_interleaved(
-      encoder_.get(), samples.data(), static_cast<int>(samples.size() / 2), buffer.data(),
-    static_cast<int>(buffer.size()));
+      encoder_.get(), samples.data(), static_cast<int>(samples.size() / 2),
+      buffer.data(), static_cast<int>(buffer.size()));
 
   if (frame_bytes < 0)
     return {};
@@ -52,8 +54,8 @@ lame_encoder::process(std::vector<pcm::sample> samples)
   std::vector<unsigned char> frames{ buffer.data(),
                                      buffer.data() + frame_bytes };
 
-  frame_bytes =
-    lame_encode_flush(encoder_.get(), buffer.data(), static_cast<int>(buffer.size()));
+  frame_bytes = lame_encode_flush(encoder_.get(), buffer.data(),
+                                  static_cast<int>(buffer.size()));
 
   if (frame_bytes > 0)
     frames.insert(frames.end(), buffer.data(), buffer.data() + frame_bytes);
@@ -61,7 +63,8 @@ lame_encoder::process(std::vector<pcm::sample> samples)
   return frames;
 }
 
-void lame_encoder::delete_encoder::operator()(encoder* garbage) const
+void
+lame_encoder::delete_encoder::operator()(encoder* garbage) const
 {
   lame_close(garbage);
 }
