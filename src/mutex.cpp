@@ -33,6 +33,10 @@ mutex::mutex()
 {
 }
 
+mutex::mutex(mutex&& other) = default;
+
+mutex& mutex::operator=(mutex&& other) = default;
+
 mutex::~mutex() = default;
 
 void

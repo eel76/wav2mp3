@@ -5,8 +5,8 @@ class mutex
 {
 public:
   mutex();
-  mutex(mutex const& other) = delete;
-  mutex& operator=(mutex const& other) = delete;
+  mutex(mutex&& other);
+  mutex& operator=(mutex&& other);
   ~mutex();
 
   void lock();

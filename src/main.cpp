@@ -1,6 +1,6 @@
-#include "monitor.h"
 #include "mp3.h"
 #include "pcm.h"
+#include "synchronize.h"
 #include "thread.h"
 #include "wave_files.h"
 #include "wave_format_exception.h"
@@ -22,11 +22,12 @@ process(path filename)
   mp3 output{ input };
   ofstream{ filename.replace_extension(".mp3"), ofstream::binary } << output;
 }
+
 void
 process(vector<path> const& collection)
 {
-  monitor<reference_wrapper<ostream>> synchronized_cout{ cout };
-  monitor<size_t>                     atomic{ 0 };
+  auto atomic = synchronize([value{ 0 }]() mutable { return value++; });
+  auto sync = make_synchronize();
 
   size_t const hardware_concurrency = thread::hardware_concurrency();
   size_t const thread_count = min(hardware_concurrency, collection.size());
@@ -37,24 +38,21 @@ process(vector<path> const& collection)
   for (size_t t = 0; t < thread_count; ++t)
     threads.emplace_back([&, t]() {
       while (true) {
-        size_t const i = atomic([](size_t& value) { return value++; });
+        size_t const i = atomic();
         if (i >= collection.size())
           break;
 
         try {
-          synchronized_cout([&](ostream& str) {
-            str << i << "> processing " << collection[i] << " in thread " << t
-                << endl;
+          sync([&]() {
+            cout << i << "> processing " << collection[i] << " in thread " << t
+                 << endl;
           });
 
           process(collection[i]);
 
-          synchronized_cout(
-            [&](ostream& str) { str << i << "> done" << endl; });
+          sync([&]() { cout << i << "> done" << endl; });
         } catch (wave_format_exception& e) {
-          synchronized_cout([&](ostream& str) {
-            str << i << "> failed: " << e.what() << endl;
-          });
+          sync([&]() { cout << i << "> failed: " << e.what() << endl; });
         }
       }
     });
