@@ -26,8 +26,10 @@ Write a C/C++ commandline application that encodes a set of WAV files to MP3
 
 # Implementation notes
 
-* tested with Visual Studio 2015 (x86 and x64) and gcc 5.4 on Ubuntu 16.04 LTS
+* supports 16-bit pcm wave files only
 
-* requires a c++14 compatible compiler. however, i didn't use `<thread>` nor `<atomic>` due to the restrictions above
+* requires a compiler with c++14 support. however, i didn't use `<thread>` and `<atomic>` due to the abovementioned restrictions
 
-* i added an own CMakeLists.txt for lame because supplied Makefiles were not usable for all configuration types
+* tested with Visual Studio 2015 (32 and 64 bit) and gcc 5.4 (64 bit)
+
+* i added an own CMakeLists.txt for lame because the supplied Makefiles were not usable for all platform configuration types
