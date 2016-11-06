@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 project(wav2mp3)
 
 set(sources src/lame_encoder.cpp src/mp3.cpp src/mutex.cpp src/pcm.cpp src/thread.cpp src/wave_files.cpp src/wave_header.cpp lame/lame.cmake)
-set(headers src/lame_encoder.h src/lame_encoder_exception.h src/lock_guard.h src/monitor.h src/mp3.h src/mutex.h src/path.h src/pcm.h src/thread.h src/wave_files.h src/wave_format_exception.h src/wave_header.h)
+set(headers src/lame_encoder.h src/lame_encoder_exception.h src/lock_guard.h src/monitor.h src/mp3.h src/mp3_encoder.h src/mutex.h src/path.h src/pcm.h src/thread.h src/wave_files.h src/wave_format_exception.h src/wave_header.h)
 set(tests src/monitor.test.cpp src/mutex.test.cpp src/thread.test.cpp gtest/gtest.cmake)
 
 include(gtest/gtest.cmake)

@@ -1,3 +1,4 @@
+#include "lame_encoder.h"
 #include "monitor.h"
 #include "mp3.h"
 #include "pcm.h"
@@ -19,7 +20,7 @@ process(path filename)
   pcm input;
   ifstream{ filename, ifstream::binary } >> input;
 
-  mp3 output{ input };
+  mp3 output{ input, lame_encoder{ lame_encoder::encoding_quality::Good } };
   ofstream{ filename.replace_extension(".mp3"), ofstream::binary } << output;
 }
 void

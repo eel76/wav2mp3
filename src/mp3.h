@@ -3,12 +3,13 @@
 
 namespace wav2mp3 {
 
+class mp3_encoder;
 class pcm;
 
 class mp3
 {
 public:
-  explicit mp3(pcm const& source);
+  mp3(pcm const& source, mp3_encoder const& encoder);
   ~mp3() = default;
 
   friend std::ostream& operator<<(std::ostream& ostr, mp3 const& stream);

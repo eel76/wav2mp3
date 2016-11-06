@@ -1,5 +1,5 @@
-#include "lame_encoder.h"
 #include "mp3.h"
+#include "mp3_encoder.h"
 
 #include <ostream>
 
@@ -7,11 +7,8 @@ using namespace std;
 
 namespace wav2mp3 {
 
-mp3::mp3(pcm const& source)
-  : frames_{ lame_encoder{ source.samples_per_second(),
-                           source.number_of_channels(),
-                           lame_encoder::encoding_quality::Good }
-               .process(source.samples()) }
+mp3::mp3(pcm const& source, mp3_encoder const& encoder)
+  : frames_{ encoder.process(source) }
 {
 }
 
