@@ -24,7 +24,7 @@ lame_encoder::lame_encoder(pcm::samplerate  samples_per_second,
     throw lame_encoder_exception{ "Unable to init encoder quality" };
 
   if (lame_init_params(encoder_.get()) != 0)
-    throw lame_encoder_exception{ "Unable to init encoder quality" };
+    throw lame_encoder_exception{ "Unable to init encoder parameters" };
 }
 
 std::vector<unsigned char>
