@@ -3,6 +3,8 @@
 
 #include <lame.h>
 
+using namespace std;
+
 namespace wav2mp3 {
 
 lame_encoder::lame_encoder(pcm::samplerate  samples_per_second,
@@ -27,10 +29,10 @@ lame_encoder::lame_encoder(pcm::samplerate  samples_per_second,
     throw lame_encoder_exception{ "Unable to init encoder parameters" };
 }
 
-std::vector<unsigned char>
-lame_encoder::process(std::vector<pcm::sample> samples)
+vector<unsigned char>
+lame_encoder::process(vector<pcm::sample> samples)
 {
-  std::vector<unsigned char> buffer;
+  vector<unsigned char> buffer;
   buffer.resize(samples.size() * 5 / 4 + 7200);
 
   auto number_of_channels = lame_get_num_channels(encoder_.get());
@@ -51,8 +53,7 @@ lame_encoder::process(std::vector<pcm::sample> samples)
   if (frame_bytes < 0)
     return {};
 
-  std::vector<unsigned char> frames{ buffer.data(),
-                                     buffer.data() + frame_bytes };
+  vector<unsigned char> frames{ buffer.data(), buffer.data() + frame_bytes };
 
   frame_bytes = lame_encode_flush(encoder_.get(), buffer.data(),
                                   static_cast<int>(buffer.size()));

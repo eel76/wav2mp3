@@ -8,6 +8,8 @@
 #endif
 #include <pthread.h>
 
+using namespace std;
+
 namespace wav2mp3 {
 class mutex::impl
 {
@@ -15,7 +17,7 @@ public:
   impl()
   {
     if (auto const error_code = pthread_mutex_init(&mutex_, nullptr))
-      throw new std::system_error(error_code, std::system_category());
+      throw new system_error(error_code, system_category());
   }
   ~impl() { pthread_mutex_destroy(&mutex_); }
 
@@ -27,7 +29,7 @@ private:
 };
 
 mutex::mutex()
-  : impl_{ std::make_unique<impl>() }
+  : impl_{ make_unique<impl>() }
 {
 }
 

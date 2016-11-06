@@ -1,6 +1,7 @@
 #include "thread.h"
 #include "gtest/gtest.h"
 
+using namespace std;
 using namespace wav2mp3;
 
 TEST(Thread, InvokesFunction)
@@ -17,7 +18,7 @@ TEST(Thread, IsMovable)
   int value = 0;
   {
     thread t{ [&]() { ++value; } };
-    thread u{ std::move(t) };
+    thread u{ move(t) };
   }
   ASSERT_EQ(value, 1);
 }

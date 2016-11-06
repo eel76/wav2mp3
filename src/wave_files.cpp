@@ -7,14 +7,15 @@
 #include <experimental/filesystem>
 #include <fstream>
 
-using std::experimental::filesystem::directory_iterator;
+using namespace std;
+using experimental::filesystem::directory_iterator;
 
 namespace wav2mp3 {
 namespace {
-std::vector<path>
+vector<path>
 directory_entries(path const& directory)
 {
-  std::vector<path> entries;
+  vector<path> entries;
 
   for (auto entry : directory_iterator(directory))
     entries.push_back(entry);
@@ -25,8 +26,7 @@ bool
 has_wave_file_extension(path const& filename)
 {
   auto extension = path::string_type{ filename.extension() };
-  std::transform(extension.begin(), extension.end(), extension.begin(),
-                 ::tolower);
+  transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
   return extension == path{ ".wav" };
 }
@@ -36,7 +36,7 @@ is_wave_file(path const& filename)
   wave_header header;
 
   try {
-    if (std::ifstream{ filename, std::ifstream::binary } >> header)
+    if (ifstream{ filename, ifstream::binary } >> header)
       return true;
   } catch (wave_format_exception const&) {
   }
@@ -45,10 +45,10 @@ is_wave_file(path const& filename)
 }
 }
 
-std::vector<path>
+vector<path>
 wave_files(path const& directory)
 {
-  std::vector<path> files;
+  vector<path> files;
 
   for (auto entry : directory_entries(directory))
     if (has_wave_file_extension(entry) && is_wave_file(entry))

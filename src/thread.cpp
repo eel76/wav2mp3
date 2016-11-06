@@ -10,21 +10,23 @@
 #endif
 #include <pthread.h>
 
+using namespace std;
+
 namespace wav2mp3 {
 class thread::impl
 {
 public:
-  impl(std::function<void()> const& f)
+  impl(function<void()> const& f)
     : f_{ f }
   {
     if (auto const error_code = pthread_create(&thread_, nullptr, &start, this))
-      throw new std::system_error(error_code, std::system_category());
+      throw new system_error(error_code, system_category());
   }
   ~impl() { pthread_join(thread_, nullptr); }
 
 private:
-  std::function<void()> f_;
-  pthread_t             thread_;
+  function<void()> f_;
+  pthread_t        thread_;
 
   static void* start(void* arg)
   {
@@ -35,8 +37,8 @@ private:
   }
 };
 
-thread::thread(std::function<void()> const& f)
-  : impl_{ std::make_unique<impl>(f) }
+thread::thread(function<void()> const& f)
+  : impl_{ make_unique<impl>(f) }
 {
 }
 

@@ -3,6 +3,8 @@
 
 #include <ostream>
 
+using namespace std;
+
 namespace wav2mp3 {
 
 mp3::mp3(pcm const& source)
@@ -13,8 +15,8 @@ mp3::mp3(pcm const& source)
 {
 }
 
-std::ostream&
-operator<<(std::ostream& ostr, mp3 const& stream)
+ostream&
+operator<<(ostream& ostr, mp3 const& stream)
 {
   return ostr.write(reinterpret_cast<char const*>(stream.frames_.data()),
                     stream.frames_.size());

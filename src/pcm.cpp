@@ -5,10 +5,12 @@
 #include <cassert>
 #include <istream>
 
+using namespace std;
+
 namespace wav2mp3 {
 
-std::istream&
-operator>>(std::istream& istr, pcm& data)
+istream&
+operator>>(istream& istr, pcm& data)
 {
   wave_header header;
   istr >> header;
@@ -27,7 +29,7 @@ operator>>(std::istream& istr, pcm& data)
 
   assert(header.data_size == sizeof(pcm::sample) * number_of_samples);
 
-  std::vector<pcm::sample> samples;
+  vector<pcm::sample> samples;
   samples.resize(number_of_samples);
 
   if (!istr.read(reinterpret_cast<char*>(samples.data()), header.data_size))
