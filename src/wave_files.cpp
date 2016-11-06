@@ -24,7 +24,7 @@ directory_entries(path const& directory)
 bool
 has_wave_file_extension(path const& filename)
 {
-  path::string_type extension = filename.extension();
+  auto extension = path::string_type{ filename.extension() };
   std::transform(extension.begin(), extension.end(), extension.begin(),
                  ::tolower);
 

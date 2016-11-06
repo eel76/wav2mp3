@@ -17,9 +17,7 @@ public:
   impl(std::function<void()> const& f)
     : f_{ f }
   {
-    int const error_code = pthread_create(&thread_, nullptr, &start, this);
-
-    if (error_code)
+    if (auto const error_code = pthread_create(&thread_, nullptr, &start, this))
       throw new std::system_error(error_code, std::system_category());
   }
   ~impl() { pthread_join(thread_, nullptr); }
@@ -30,7 +28,7 @@ private:
 
   static void* start(void* arg)
   {
-    impl* thread = reinterpret_cast<impl*>(arg);
+    auto const thread = reinterpret_cast<impl*>(arg);
     thread->f_();
 
     return nullptr;

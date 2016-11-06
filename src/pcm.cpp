@@ -22,8 +22,8 @@ operator>>(std::istream& istr, pcm& data)
   if (header.number_of_channels != 1 && header.number_of_channels != 2)
     throw wave_format_exception("Unsupported format");
 
-  uint16_t const bytes_per_sample = header.bits_per_sample / 8;
-  size_t const   number_of_samples = header.data_size / bytes_per_sample;
+  auto const bytes_per_sample = header.bits_per_sample / 8;
+  auto const number_of_samples = header.data_size / bytes_per_sample;
 
   assert(header.data_size == sizeof(pcm::sample) * number_of_samples);
 
