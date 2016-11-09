@@ -45,22 +45,13 @@ make_engine(pcm::samplerate                samples_per_second,
 }
 
 vector<unsigned char>
-encode(encoder_engine* engine, pcm::channels number_of_channels,
-       std::vector<pcm::sample> samples)
+encode_mono(encoder_engine* engine, std::vector<pcm::sample> samples)
 {
   vector<unsigned char> buffer;
   buffer.resize(samples.size() * 5 / 4 + 7200);
 
-  int encoded_size = 0;
-
-  if (number_of_channels == pcm::channels::Mono)
-    encoded_size = lame_encode_buffer(
+  int encoded_size = lame_encode_buffer(
       engine, samples.data(), samples.data(), static_cast<int>(samples.size()),
-      buffer.data(), static_cast<int>(buffer.size()));
-
-  if (number_of_channels == pcm::channels::Stereo)
-    encoded_size = lame_encode_buffer_interleaved(
-      engine, samples.data(), static_cast<int>(samples.size() / 2),
       buffer.data(), static_cast<int>(buffer.size()));
 
   if (encoded_size < 0)
@@ -71,6 +62,26 @@ encode(encoder_engine* engine, pcm::channels number_of_channels,
                       static_cast<int>(buffer.size() - encoded_size));
 
   return { buffer.begin(), buffer.begin() + encoded_size };
+}
+
+vector<unsigned char>
+encode_stereo(encoder_engine* engine, std::vector<pcm::sample> samples)
+{
+  vector<unsigned char> buffer;
+  buffer.resize(samples.size() * 5 / 4 + 7200);
+
+  int encoded_size = lame_encode_buffer_interleaved(
+      engine, samples.data(), static_cast<int>(samples.size() / 2),
+      buffer.data(), static_cast<int>(buffer.size()));
+
+  if (encoded_size < 0)
+    return{};
+
+  encoded_size +=
+    lame_encode_flush(engine, buffer.data() + encoded_size,
+      static_cast<int>(buffer.size() - encoded_size));
+
+  return{ buffer.begin(), buffer.begin() + encoded_size };
 }
 }
 
@@ -87,6 +98,10 @@ lame_encoder::process(pcm const& source) const
 
   auto const engine =
     make_engine(samples_per_second, number_of_channels, quality_);
-  return encode(engine.get(), number_of_channels, source.samples());
+
+  if (number_of_channels == pcm::channels::Mono)
+    return encode_mono(engine.get(), source.samples());
+
+  return encode_stereo(engine.get(), source.samples());
 }
 }
