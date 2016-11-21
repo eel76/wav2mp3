@@ -36,23 +36,23 @@ process(vector<path> const& collection)
   threads.reserve(thread_count);
 
   for (size_t t = 0; t < thread_count; ++t)
-    threads.emplace_back([&, t]() {
+    threads.emplace_back([&, t] {
       while (true) {
         size_t const i = atomic();
         if (i >= collection.size())
           break;
 
         try {
-          sync([&]() {
+          sync([&] {
             cout << i << "> processing " << collection[i] << " in thread " << t
-                 << endl;
+                 << '\n';
           });
 
           process(collection[i]);
 
-          sync([&]() { cout << i << "> done" << endl; });
+          sync([&] { cout << i << "> done" << '\n'; });
         } catch (wave_format_exception& e) {
-          sync([&]() { cout << i << "> failed: " << e.what() << endl; });
+          sync([&] { cout << i << "> failed: " << e.what() << '\n'; });
         }
       }
     });
@@ -64,17 +64,17 @@ main(int argc, char* argv[])
 {
   if (argc != 2) {
     cout << "Usage: " << path{ argv[0] }.filename()
-         << " <path-to-wav-collection>" << endl;
+         << " <path-to-wav-collection>" << '\n';
     return 1;
   }
 
   try {
     process(wave_files(path{ argv[1] }));
-  } catch (system_error& e) {
-    cout << "System error: " << e.what() << endl;
+  } catch (system_error const& e) {
+    cout << "System error: " << e.what() << '\n';
     return e.code().value();
-  } catch (exception& e) {
-    cout << "Error: " << e.what() << endl;
+  } catch (exception const& e) {
+    cout << "Error: " << e.what() << '\n';
     return 1;
   }
 
