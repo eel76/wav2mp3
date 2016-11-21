@@ -27,7 +27,7 @@ void
 process(vector<path> const& collection)
 {
   auto atomic = synchronize([value{ 0 }]() mutable { return value++; });
-  auto sync = make_synchronize();
+  auto sync = make_synchronize(); // FIXME: https://godbolt.org/g/T1rvn6
 
   size_t const hardware_concurrency = thread::hardware_concurrency();
   size_t const thread_count = min(hardware_concurrency, collection.size());
